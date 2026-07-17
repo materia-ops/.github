@@ -46,8 +46,9 @@ same repository.
 
 ## Provenance and reporting
 
-Releases, images, and updater feeds are published only from repositories in this
-organization. Anything sourced elsewhere, however it is named, is not ours.
+`materia.wtf` is a verified domain for this organization, and releases, images,
+and updater feeds are published only from repositories here. Anything sourced
+from another domain or organization, however it is named, is not ours.
 
 Please report security issues privately through GitHub's private vulnerability
 reporting on the affected repository, rather than opening a public issue.
