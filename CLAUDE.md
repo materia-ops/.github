@@ -25,5 +25,6 @@ This repo is PUBLIC — nothing sensitive, ever.
   Commits (`type(scope):`), merged by the maintainer, not by sessions.
 - Renovate-config edits: keep `default.json` strict JSON (no comments,
   never rename it to `.json5` — see `renovate/README.md`) and re-read
-  that README first — the constraints it documents (org ruleset, no
-  direct pushes) are why the settings look the way they do.
+  that README plus the description fields in the file first — the
+  constraints they document (org ruleset, no direct pushes, Aqua's IP
+  allow list) are why the settings look the way they do.
