@@ -22,11 +22,13 @@ branch directly — our own automation opens a pull request like everyone else.
 This is an organization ruleset with no bypass, so it holds even for an owner's
 token.
 
-**Secrets never touch git.** Application and infrastructure secrets live in
-1Password and reach the cluster through External Secrets. CI reads a small,
-dedicated vault through a service account scoped to it alone, so a workflow
-cannot reach cluster credentials. A secret is scoped to the one repository that
-needs it; an organization-wide secret would require a written reason.
+**Secrets never touch git — or GitHub.** Application and infrastructure secrets
+live in 1Password and reach the cluster through External Secrets. GitHub Actions
+hold only a small set of narrowly-scoped 1Password *fetch tokens* — no signing
+keys, SSH keys, or app credentials sit in repository or organization settings;
+workflows read what they need from 1Password at run time. Each token reaches only
+the vault its job needs, so a compromised workflow can't get at cluster
+credentials or another app's release-signing key.
 
 **End-user releases are signed.** Every release publishes a `SHA256SUMS` over its
 assets and a `SHA256SUMS.sig` — an RSA-SHA256 signature over that file. The
