@@ -41,6 +41,26 @@
 # label to its PRs; keep it in the canonical set so the sync does not prune it.
 - name: dependencies
   color: "027fa0"
+# General issue triage (the dev repos use these; kept org-wide so the sync
+# does not strip them from repos that have real issues/PRs).
+- name: bug
+  color: "d73a4a"
+- name: enhancement
+  color: "a2eeef"
+- name: documentation
+  color: "0075ca"
+- name: question
+  color: "d876e3"
+- name: duplicate
+  color: "cfd3d7"
+- name: invalid
+  color: "e4e669"
+- name: wontfix
+  color: "ffffff"
+- name: help wanted
+  color: "008672"
+- name: good first issue
+  color: "7057ff"
 # Uncategorized
 - name: community
   color: "370fb2"
