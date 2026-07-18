@@ -1,5 +1,14 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "automergeType": "pr",
-  "platformAutomerge": true
+  "platformAutomerge": true,
+  "packageRules": [
+    {
+      "description": "Aqua's GitHub org has an enterprise IP allow list that blocks GraphQL reads of their public repos when authenticated as a GitHub App (our renovate token), so github-tags lookups return no-result. git-tags discovers versions and digests via plain git ls-remote, bypassing their API entirely.",
+      "matchPackageNames": ["aquasecurity/trivy-action"],
+      "matchDatasources": ["github-tags"],
+      "overrideDatasource": "git-tags",
+      "overridePackageName": "https://github.com/aquasecurity/trivy-action"
+    }
+  ]
 }
