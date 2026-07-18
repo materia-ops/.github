@@ -1,0 +1,107 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Label Sync
+
+# Fan out labels.yaml to every repo in the org: create/update to match, and
+# prune labels not listed. Single source of truth is /labels.yaml in this repo.
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Log changes without applying them"
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths: [labels.yaml]
+  schedule:
+    - cron: "0 3 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Label Sync - Fan Out
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+          sparse-checkout: labels.yaml
+
+      - name: Load Secrets
+        id: load-secrets
+        uses: 1password/load-secrets-action@3a12b0ab99d9cd590a3e9b5a90ea017210ed9556 # v4.0.1 # zizmor: ignore[unpinned-tools]
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          GITHUB_BOT_APP_CLIENT_ID: op://ci/github-bot/GITHUB_BOT_APP_CLIENT_ID
+          GITHUB_BOT_APP_PRIVATE_KEY: op://ci/github-bot/GITHUB_BOT_APP_PRIVATE_KEY
+
+      - name: Generate Token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ steps.load-secrets.outputs.GITHUB_BOT_APP_CLIENT_ID }}
+          private-key: ${{ steps.load-secrets.outputs.GITHUB_BOT_APP_PRIVATE_KEY }}
+          # Org-wide by design: a fleet label sync must reach every repo. The
+          # token is minimally scoped (issues:write + metadata:read only), so
+          # "all repos" cannot touch code, secrets, or workflows.
+          owner: ${{ github.repository_owner }} # zizmor: ignore[github-app]
+          permission-issues: write
+          permission-metadata: read
+
+      - name: Sync labels to every org repo
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          ORG: ${{ github.repository_owner }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+        run: |
+          set -euo pipefail
+
+          # Desired label names (for prune comparison).
+          mapfile -t DESIRED < <(yq '.[].name' labels.yaml)
+
+          # Non-archived repos in the org.
+          mapfile -t REPOS < <(gh api "orgs/${ORG}/repos" --paginate \
+            -q '.[] | select(.archived == false) | .name')
+          echo "Syncing ${#DESIRED[@]} labels to ${#REPOS[@]} repos (dry_run=${DRY_RUN})"
+
+          for repo in "${REPOS[@]}"; do
+            echo "::group::${repo}"
+            (
+              set -e
+              # Create or update every desired label.
+              while IFS=$'\t' read -r name color desc; do
+                [ -z "${name}" ] && continue
+                if [ "${DRY_RUN}" = "true" ]; then
+                  echo "would upsert: ${name} (#${color})"
+                else
+                  gh label create "${name}" --repo "${ORG}/${repo}" \
+                    --color "${color}" --description "${desc}" --force
+                fi
+              done < <(yq -o=tsv '.[] | [.name, .color, (.description // "")]' labels.yaml)
+
+              # Prune anything not in the desired set.
+              while IFS= read -r existing; do
+                [ -z "${existing}" ] && continue
+                keep=false
+                for d in "${DESIRED[@]}"; do
+                  [ "${existing}" = "${d}" ] && keep=true && break
+                done
+                if [ "${keep}" = "false" ]; then
+                  if [ "${DRY_RUN}" = "true" ]; then
+                    echo "would delete: ${existing}"
+                  else
+                    gh label delete "${existing}" --repo "${ORG}/${repo}" --yes
+                  fi
+                fi
+              done < <(gh label list --repo "${ORG}/${repo}" --limit 200 --json name -q '.[].name')
+            ) || echo "::warning title=Label Sync::${repo} failed (skipped)"
+            echo "::endgroup::"
+          done

@@ -1,0 +1,48 @@
+---
+# Org-wide label set for materia-ops. Single source of truth.
+# The Label Sync workflow applies this to every repo in the org (create/update
+# to match, and prune any label not listed here). Edit here, commit to main,
+# and the sync fans it out.
+
+# Areas
+- name: area/bootstrap
+  color: "0e8a16"
+- name: area/github
+  color: "0e8a16"
+- name: area/kubernetes
+  color: "0e8a16"
+- name: area/renovate
+  color: "0e8a16"
+- name: area/talos
+  color: "0e8a16"
+# Renovate types
+- name: renovate/container
+  color: "027fa0"
+- name: renovate/github-action
+  color: "027fa0"
+- name: renovate/grafana-dashboard
+  color: "027fa0"
+- name: renovate/github-release
+  color: "027fa0"
+- name: renovate/helm
+  color: "027fa0"
+- name: renovate/talos
+  color: "027fa0"
+# Semantic types
+- name: type/digest
+  color: "ffec19"
+- name: type/patch
+  color: "ffec19"
+- name: type/minor
+  color: "ff9800"
+- name: type/major
+  color: "f6412d"
+# Dependabot (the WoW addon repos use Dependabot, not Renovate) applies this
+# label to its PRs; keep it in the canonical set so the sync does not prune it.
+- name: dependencies
+  color: "027fa0"
+# Uncategorized
+- name: community
+  color: "370fb2"
+- name: hold
+  color: "ee0701"
