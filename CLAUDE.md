@@ -28,3 +28,11 @@ This repo is PUBLIC — nothing sensitive, ever.
   that README plus the description fields in the file first — the
   constraints they document (org ruleset, no direct pushes, Aqua's IP
   allow list) are why the settings look the way they do.
+
+## Work docs
+
+Code-describing docs (architecture, CI, troubleshooting) live in this
+repo. Work-describing docs — decisions, plans, handovers, reviews,
+prompts, anything cross-repo — live in the private
+`materia-ops/materia-vault` Obsidian vault; its root CLAUDE.md holds
+the note contract.
