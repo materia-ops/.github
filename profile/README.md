@@ -17,10 +17,10 @@ image digest — never a moving tag like `@v4`. GitHub's org-wide SHA-pinning
 policy enforces this, so it cannot quietly drift.
 
 **Default branches only move through pull requests.** Force-pushes and branch
-deletions are blocked across the organization, and nothing writes to a default
-branch directly — our own automation opens a pull request like everyone else.
-This is an organization ruleset with no bypass, so it holds even for an owner's
-token.
+deletions are blocked across the organization, and no public repository's
+default branch takes a direct push — our own automation opens a pull request
+like everyone else. This is an organization ruleset with no bypass, so it holds
+even for an owner's token.
 
 **Secrets never touch git — or GitHub.** Application and infrastructure secrets
 live in 1Password and reach the cluster through External Secrets. GitHub Actions
