@@ -13,5 +13,16 @@
       "overrideDatasource": "git-tags",
       "overridePackageName": "https://github.com/aquasecurity/trivy-action"
     }
+  ],
+  "customManagers": [
+    {
+      "description": "The fleet pins the op CLI that 1password/load-secrets-action installs (with: version: X.Y.Z, decision 2026-07-30); no standard manager reads with:-inputs, and 1Password publishes no GitHub releases for the CLI — the 1password/op Docker Hub tags mirror CLI versions, so they drive the bump. Dependabot-managed repos (allthethings-wotlk, droprate-wotlk, tradeskillmaster-wotlk) are outside this and stay manual.",
+      "customType": "regex",
+      "managerFilePatterns": [".github/workflows/*.yml", ".github/workflows/*.yaml"],
+      "matchStrings": ["uses: 1password/load-secrets-action@\\S+[^\\n]*\\n\\s+with:\\n\\s+version: (?<currentValue>[0-9.]+)"],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "1password/op",
+      "versioningTemplate": "semver"
+    }
   ]
 }
