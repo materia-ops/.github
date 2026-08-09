@@ -3,7 +3,7 @@
 Materia Ops builds and runs **Materia**: a GitOps-managed Kubernetes cluster and
 the World of Warcraft 3.3.5a services and tooling that run on it. Every public
 repository here is either the source of something we operate or the release
-mirror an in-game updater pulls from.
+mirror an updater pulls from.
 
 ## What you can verify about the code here
 
@@ -30,8 +30,9 @@ workflows read what they need from 1Password at run time. Each token reaches onl
 the vault its job needs, so a compromised workflow can't get at cluster
 credentials or another app's release-signing key.
 
-**End-user releases are signed.** Every release publishes a `SHA256SUMS` over its
-assets and a `SHA256SUMS.sig` — an RSA-SHA256 signature over that file. The
+**End-user releases are signed.** Every release publishes a checksum manifest
+over its assets (`SHA256SUMS`; `SHA256SUMS.txt` on Materia Core releases) and a
+matching `.sig` — an RSA-SHA256 signature over that file. The
 verifying public key is committed next to the source and pinned inside the
 shipped updater, which checks the signature before installing anything, so a
 compromised mirror cannot hand a client a tampered build. You can check any

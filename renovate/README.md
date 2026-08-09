@@ -5,7 +5,7 @@ overrides upstream presets:
 
 ```json5
 extends: [
-  "github>home-operations/renovate-presets#2.1.0",
+  "github>home-operations/renovate-presets#7.0.0",
   "github>materia-ops/.github//renovate/default",
 ]
 ```
