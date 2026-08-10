@@ -48,7 +48,10 @@ Key fingerprints (SHA-256 of the committed PEM), so the key you fetch from a
 mirror can be checked against this page: WoW addon realm key
 `486c1a237944ea9c7341eff0956dca5898b5502f48a8bc96126fc889af9b6b49`,
 Materia Core key
-`e7246c9cf5c343687cb43bc8e3340d196ead3e36f35045dc21bc9a03d4979c96`.
+`e7246c9cf5c343687cb43bc8e3340d196ead3e36f35045dc21bc9a03d4979c96`,
+RealmChat key (committed as `src/RealmChat/release-key.pub` in the public
+wow-realmchat repo)
+`80f63cf419809fe9acdefe4b4e3d1b1da20cdb400b2bc823c74a3bcd2b571fe1`.
 
 **Dependencies are updated by bots, deliberately.** Most repositories use
 Renovate; the standalone WoW addon repositories use Dependabot. Never both on the
