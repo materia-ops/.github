@@ -19,6 +19,10 @@ This repo is PUBLIC — nothing sensitive, ever.
   repo in the org.
 - `profile/README.md` — the public org profile page.
 - `README.md` — the repo's own landing blurb.
+- `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`,
+  `.github/ISSUE_TEMPLATE/`, `.github/PULL_REQUEST_TEMPLATE.md` —
+  org-default community health files; every org repo without its own
+  copy inherits these.
 
 ## Rules
 - Treat every edit as a fleet-wide change: small PRs, Conventional
