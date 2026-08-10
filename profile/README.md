@@ -33,15 +33,25 @@ credentials or another app's release-signing key.
 **End-user releases are signed.** Every release publishes a checksum manifest
 over its assets (`SHA256SUMS`; `SHA256SUMS.txt` on Materia Core releases) and a
 matching `.sig` — an RSA-SHA256 signature over that file. The
-verifying public key is committed next to the source and pinned inside the
-shipped updater, which checks the signature before installing anything, so a
-compromised mirror cannot hand a client a tampered build. You can check any
-release yourself:
+verifying public key is committed in each release mirror (`release-key.pub`;
+`materia-release-key.pub` on Materia Core releases), next to the source, and
+pinned inside the shipped updater, which checks the signature before
+installing anything, so a compromised mirror cannot hand a client a tampered
+build. You can check any release yourself:
 
 ```sh
 sha256sum -c SHA256SUMS
 openssl dgst -sha256 -verify release-key.pub -signature SHA256SUMS.sig SHA256SUMS
 ```
+
+Key fingerprints (SHA-256 of the committed PEM), so the key you fetch from a
+mirror can be checked against this page: WoW addon realm key
+`486c1a237944ea9c7341eff0956dca5898b5502f48a8bc96126fc889af9b6b49`,
+Materia Core key
+`e7246c9cf5c343687cb43bc8e3340d196ead3e36f35045dc21bc9a03d4979c96`,
+RealmChat key (committed as `src/RealmChat/release-key.pub` in the public
+wow-realmchat repo)
+`80f63cf419809fe9acdefe4b4e3d1b1da20cdb400b2bc823c74a3bcd2b571fe1`.
 
 **Dependencies are updated by bots, deliberately.** Most repositories use
 Renovate; the standalone WoW addon repositories use Dependabot. Never both on the
