@@ -28,7 +28,6 @@ jobs:
   sync:
     name: Label Sync - Fan Out
     runs-on: ubuntu-latest
-    # 1Password tokens live only in this main-only Environment.
     environment: ci-main
     steps:
       - name: Checkout
