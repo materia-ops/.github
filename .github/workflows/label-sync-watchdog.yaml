@@ -1,0 +1,98 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Label Sync Watchdog
+
+# Report-only check that the nightly Label Sync is still running. GitHub
+# disables scheduled workflows in a public repo after 60 days without
+# repository activity, and this repo is quiet — so the schedule that calls
+# this must live in a repo that is active. It is deliberately not scheduled
+# here: a schedule in this repo lapses together with the one it watches.
+on:
+  workflow_call:
+    inputs:
+      max_age_days:
+        description: "Alert when the last successful Label Sync is older than this"
+        type: number
+        default: 3
+  workflow_dispatch:
+    inputs:
+      max_age_days:
+        description: "Alert when the last successful Label Sync is older than this"
+        type: number
+        default: 3
+
+permissions: {}
+
+jobs:
+  check:
+    name: Label Sync Watchdog - Check
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write # open the alert issue in the repo that runs this check
+    steps:
+      - name: Check the Label Sync schedule
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Hardcoded: under workflow_call the github context is the caller's.
+          WATCHED_REPO: materia-ops/.github
+          WATCHED_WORKFLOW: label-sync.yaml
+          REPORT_REPO: ${{ github.repository }}
+          MAX_AGE_DAYS: ${{ inputs.max_age_days }}
+        run: |
+          set -euo pipefail
+
+          api="repos/${WATCHED_REPO}/actions/workflows/${WATCHED_WORKFLOW}"
+          state="$(gh api "${api}" -q '.state')"
+          last="$(gh api "${api}/runs?status=success&per_page=1" \
+            -q '.workflow_runs[0].created_at // ""')"
+
+          if [ -n "${last}" ]; then
+            age_days=$(( ( $(date -u +%s) - $(date -u -d "${last}" +%s) ) / 86400 ))
+          else
+            last="never"
+            age_days=-1
+          fi
+
+          {
+            echo "### Label Sync watchdog"
+            echo "- workflow state: \`${state}\`"
+            echo "- last successful run: ${last} (${age_days} days ago)"
+            echo "- threshold: ${MAX_AGE_DAYS} days"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          if [ "${state}" = "active" ] && [ "${age_days}" -ge 0 ] \
+            && [ "${age_days}" -le "${MAX_AGE_DAYS}" ]; then
+            echo "Label Sync is healthy (state=${state}, last success ${last})."
+            exit 0
+          fi
+
+          echo "::warning title=Label Sync Watchdog::state=${state}, last success ${last}"
+
+          # One open issue at a time; a human closes it once the sync is back.
+          title="Label Sync has stopped running"
+          existing="$(gh issue list --repo "${REPORT_REPO}" --state open \
+            --search "in:title \"${title}\"" --json number,title \
+            -q "[.[] | select(.title == \"${title}\")][0].number // \"\"")"
+          if [ -n "${existing}" ]; then
+            echo "Alert already open: ${REPORT_REPO}#${existing}"
+            exit 0
+          fi
+
+          body="$(mktemp)"
+          {
+            echo "The org-wide Label Sync in \`${WATCHED_REPO}\` looks stalled."
+            echo
+            echo "- workflow state: \`${state}\`"
+            echo "- last successful run: ${last}"
+            echo "- threshold: ${MAX_AGE_DAYS} days"
+            echo
+            echo "If the state is \`disabled_inactivity\`, GitHub disabled the"
+            echo "schedule because that repository had no activity for 60 days."
+            echo "Re-enable it from the workflow's page under Actions"
+            echo "(https://github.com/${WATCHED_REPO}/actions/workflows/${WATCHED_WORKFLOW}),"
+            echo "then run it once by hand. If the state is \`active\`, look at"
+            echo "the recent runs there for failures instead."
+            echo
+            echo "Opened by the Label Sync Watchdog; close this once the sync runs again."
+          } > "${body}"
+          gh issue create --repo "${REPORT_REPO}" --title "${title}" --body-file "${body}"

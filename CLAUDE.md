@@ -21,8 +21,15 @@ This repo is PUBLIC — nothing sensitive, ever.
   repo in the org (nightly, and on every `labels.yaml` change). The
   nightly run is not a standing guarantee: GitHub disables scheduled
   workflows in a public repo after 60 days without repository
-  activity, so check the workflow is still enabled when this repo has
-  been quiet.
+  activity (commits count, workflow runs do not), so check the workflow
+  is still enabled when this repo has been quiet.
+- `.github/workflows/label-sync-watchdog.yaml` — report-only check for
+  that lapse: reads the Label Sync's state and last successful run and
+  opens one issue, in the repo that runs it, when the sync is disabled
+  or stale. It is a reusable workflow with no schedule of its own — a
+  schedule here would lapse with the one it watches — so it only
+  guards the sync while an active repo calls it on a schedule. It
+  changes nothing; re-enabling the sync stays a manual step.
 - `profile/README.md` — the public org profile page.
 - `README.md` — the repo's own landing blurb.
 - `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`,
