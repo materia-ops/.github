@@ -96,10 +96,11 @@ jobs:
                   [ "${existing}" = "${d}" ] && keep=true && break
                 done
                 # Functional labels owned by other automation (release-please,
-                # the ATT drift job, Dependabot) — never prune, even though they
-                # are intentionally not in labels.yaml.
+                # the ATT drift job, the addon release-failure issues,
+                # Dependabot) — never prune, even though they are intentionally
+                # not in labels.yaml.
                 case "${existing}" in
-                  autorelease:*|upstream-drift|requires-reextraction|github_actions) keep=true ;;
+                  autorelease:*|upstream-drift|requires-reextraction|release-failure|github_actions) keep=true ;;
                 esac
                 if [ "${keep}" = "false" ]; then
                   if [ "${DRY_RUN}" = "true" ]; then
