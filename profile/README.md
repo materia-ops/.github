@@ -5,6 +5,17 @@ the World of Warcraft 3.3.5a services and tooling that run on it. Every public
 repository here is either the source of something we operate or the release
 mirror an updater pulls from.
 
+| Repository | What it is |
+|---|---|
+| [home-ops](https://github.com/materia-ops/home-ops) | Source: the GitOps repository the cluster reconciles from |
+| [wow-realmchat](https://github.com/materia-ops/wow-realmchat) | Source and signed releases of RealmChat (RealmChat key) |
+| [allthethings-wotlk-releases](https://github.com/materia-ops/allthethings-wotlk-releases), [droprate-wotlk-releases](https://github.com/materia-ops/droprate-wotlk-releases), [tradeskillmaster-wotlk-releases](https://github.com/materia-ops/tradeskillmaster-wotlk-releases) | Release mirrors for the WoW addons (WoW addon realm key) |
+| [materia-core-releases](https://github.com/materia-ops/materia-core-releases) | Release feed for Materia Core; its source is private (Materia Core key) |
+| [.github](https://github.com/materia-ops/.github) | This profile and the org-wide defaults |
+
+The key named in brackets is the one that verifies that repository's releases —
+see the fingerprints below.
+
 ## What you can verify about the code here
 
 We would rather you check than trust us. Each statement below is enforced by an
@@ -26,9 +37,12 @@ even for an owner's token.
 live in 1Password and reach the cluster through External Secrets. GitHub Actions
 hold only a small set of narrowly-scoped 1Password *fetch tokens* — no signing
 keys, SSH keys, or app credentials sit in repository or organization settings;
-workflows read what they need from 1Password at run time. Each token reaches only
-the vault its job needs, so a compromised workflow can't get at cluster
-credentials or another app's release-signing key.
+workflows read what they need from 1Password at run time. The tokens are kept
+as deployment-environment secrets rather than plain repository secrets, each
+environment gated by a default-branch (or release-tag) restriction or a required
+reviewer, so a pull-request branch cannot read them unattended. Each token
+reaches only the vault its job needs, so a compromised workflow can't get at
+cluster credentials or another app's release-signing key.
 
 **End-user releases are signed.** Every release publishes a checksum manifest
 over its assets (`SHA256SUMS`; `SHA256SUMS.txt` on Materia Core releases) and a
@@ -53,9 +67,10 @@ RealmChat key (committed as `src/RealmChat/release-key.pub` in the public
 wow-realmchat repo)
 `80f63cf419809fe9acdefe4b4e3d1b1da20cdb400b2bc823c74a3bcd2b571fe1`.
 
-**Dependencies are updated by bots, deliberately.** Most repositories use
-Renovate; the standalone WoW addon repositories use Dependabot. Never both on the
-same repository.
+**Dependencies are updated by bots, deliberately.** Repositories that build or
+deploy something use Renovate; the standalone WoW addon repositories use
+Dependabot. Never both on the same repository. (Release mirrors carry no
+dependencies.)
 
 ## Provenance and reporting
 
