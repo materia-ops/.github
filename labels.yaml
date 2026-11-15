@@ -3,8 +3,7 @@
 # The Label Sync workflow applies this to every repo in the org (create/update
 # to match, and prune any label not listed here, except the automation-owned
 # labels exempted in the workflow's prune step). Edit here, commit to main,
-# and the sync fans it out. The sync refuses to run (and touches no repo) if
-# this file yields fewer than 10 label names.
+# and the sync fans it out.
 
 # Areas
 - name: area/bootstrap

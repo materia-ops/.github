@@ -71,7 +71,11 @@ jobs:
           # set -e cannot see a failed yq inside the process substitution, and
           # an empty or short list would prune every label in every repo.
           MIN_LABELS=10
-          if [ "${#DESIRED[@]}" -lt "${MIN_LABELS}" ] || printf '%s\n' "${DESIRED[@]}" | grep -qxE 'null|'; then
+          bad_name=false
+          for desired_name in "${DESIRED[@]}"; do
+            case "${desired_name}" in '' | null | Null | NULL | '~') bad_name=true ;; esac
+          done
+          if [ "${#DESIRED[@]}" -lt "${MIN_LABELS}" ] || [ "${bad_name}" = true ]; then
             echo "::error title=Label Sync::labels.yaml gave ${#DESIRED[@]} label names (minimum ${MIN_LABELS}), or a null or empty name; no repo was touched"
             exit 1
           fi

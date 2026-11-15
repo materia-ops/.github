@@ -16,7 +16,9 @@ This repo is PUBLIC — nothing sensitive, ever.
   `default.json` (a `.json5` name is never resolved by Renovate) and
   where the policy rationale lives.
 - `labels.yaml` — org label set (see its header for the sync contract).
-  Deleting an entry deletes that label wherever the sync applies it.
+  Deleting an entry deletes that label wherever the sync applies it. The
+  sync refuses to run, and touches no repo, when the file yields fewer
+  than 10 label names or a null or empty name.
 - `.github/workflows/label-sync.yaml` — fans `labels.yaml` out to every
   repo in the org (nightly, and on every `labels.yaml` change). The
   nightly run is not a standing guarantee: GitHub disables scheduled
