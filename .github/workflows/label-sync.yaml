@@ -68,6 +68,18 @@ jobs:
           # Desired label names (for prune comparison).
           mapfile -t DESIRED < <(yq '.[].name' labels.yaml)
 
+          # set -e cannot see a failed yq inside the process substitution, and
+          # an empty or short list would prune every label in every repo.
+          MIN_LABELS=10
+          bad_name=false
+          for desired_name in "${DESIRED[@]}"; do
+            case "${desired_name}" in '' | null | Null | NULL | '~') bad_name=true ;; esac
+          done
+          if [ "${#DESIRED[@]}" -lt "${MIN_LABELS}" ] || [ "${bad_name}" = true ]; then
+            echo "::error title=Label Sync::labels.yaml gave ${#DESIRED[@]} label names (minimum ${MIN_LABELS}), or a null or empty name; no repo was touched"
+            exit 1
+          fi
+
           # Non-archived repos in the org.
           mapfile -t REPOS < <(gh api "orgs/${ORG}/repos" --paginate \
             -q '.[] | select(.archived == false) | .name')
