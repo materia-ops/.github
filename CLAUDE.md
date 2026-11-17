@@ -32,6 +32,23 @@ This repo is PUBLIC — nothing sensitive, ever.
   schedule here would lapse with the one it watches — so it only
   guards the sync while an active repo calls it on a schedule. It
   changes nothing; re-enabling the sync stays a manual step.
+- `.github/workflows/secret-scan.yaml` — reusable, report-only secret
+  scan: gitleaks over the calling repo's tree and full history, with
+  gitleaks' default rules plus the fleet rules. A finding fails the run
+  and names file, line and rule, never the value; nothing is changed.
+  The rules are written in the workflow file, so a caller pinned to a
+  commit runs exactly that commit's rules, and the caller's own
+  `.gitleaks.toml` is not read. To adopt it, copy
+  `secret-scan-self.yaml` (this repo's own caller) and point its `uses:`
+  at `materia-ops/.github/.github/workflows/secret-scan.yaml@<commit SHA> # main`
+  (the bare branch name is what lets Renovate move the pin); the calling
+  job must grant `contents: read`. A repo records an exception in its
+  own `.github/secret-scan-exceptions.toml`: nothing but `[[allowlists]]`
+  tables, each with exactly `description` (the reason), `targetRules`,
+  `regexTarget = "match"` and `regexes` anchored from `^` to `$`, so an
+  entry excuses one whole match and cannot hide a second value inside
+  it. Anything else in that file fails the run, as does a root
+  `.gitleaksignore`; inline allow comments are ignored.
 - `profile/README.md` — the public org profile page.
 - `README.md` — the repo's own landing blurb.
 - `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`,
