@@ -45,9 +45,14 @@ This repo is PUBLIC — nothing sensitive, ever.
   job must grant `contents: read`. A repo records an exception in its
   own `.github/secret-scan-exceptions.toml`: nothing but `[[allowlists]]`
   tables, each with exactly `description` (the reason), `targetRules`,
-  `regexTarget = "match"` and `regexes` anchored from `^` to `$`, so an
-  entry excuses one whole match and cannot hide a second value inside
-  it. Anything else in that file fails the run, as does a root
+  `regexTarget = "match"` and `regexes` anchored from `^` to `$`. A
+  match is excused only when one regex covers the whole of it, and
+  crafted regex syntax cannot widen that: gitleaks must accept each
+  regex as written. How broad a regex is stays a review question. Keep
+  each regex string on one line: a regex reads like the value it
+  excuses, so a line of that file holding only regex strings is not a
+  finding, while every other line of it is scanned. A file with
+  anything but such tables fails the run, as does a root
   `.gitleaksignore`; inline allow comments are ignored.
 - `profile/README.md` — the public org profile page.
 - `README.md` — the repo's own landing blurb.
